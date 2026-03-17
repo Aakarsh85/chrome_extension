@@ -45,12 +45,13 @@ LOGO CLICK
 
 logo.addEventListener("click", () => {
 
+    console.log("Logo clicked");
+
     chrome.tabs.create({
         url: "https://aakarsh85.github.io/chrome_extension/"
     });
 
 });
-
 /* -----------------------------
 MENU TOGGLE
 ----------------------------- */
