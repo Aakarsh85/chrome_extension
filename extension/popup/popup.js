@@ -46,11 +46,10 @@ LOGO CLICK
 logo.addEventListener("click", () => {
 
     chrome.tabs.create({
-        url: "https://example.com"
+        url: "https://aakarsh85.github.io/chrome_extension/"
     });
 
 });
-
 
 
 /* -----------------------------
