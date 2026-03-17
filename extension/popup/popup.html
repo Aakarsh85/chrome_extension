@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+
+<title>Smart Bookmark</title>
+
+<link rel="stylesheet" href="popup.css">
+
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<div class="header">
+
+    <div id="logo" class="logo">
+        🔖 SmartBookmark
+    </div>
+
+    <div class="top-buttons">
+
+        <button id="settingsBtn">⚙</button>
+
+        <button id="menuBtn">☰</button>
+
+    </div>
+
+</div>
+
+
+<!-- MENU -->
+
+<div id="menu" class="menu hidden">
+
+    <div id="accountBtn">Account</div>
+
+    <div id="helpBtn">Help</div>
+
+</div>
+
+
+<!-- SAVE CURRENT PAGE -->
+
+<button id="saveBtn" class="save">
+
+    + Save Current Page
+
+</button>
+
+
+<!-- GROUP SELECTOR -->
+
+<div class="group-section">
+
+<select id="groupSelect">
+
+<option value="Coding">Coding</option>
+
+<option value="Research">Research</option>
+
+<option value="Learning">Learning</option>
+
+<option value="Shopping">Shopping</option>
+
+<option value="General">General</option>
+
+</select>
+
+<button id="newGroupBtn">+</button>
+
+</div>
+
+
+<!-- SEARCH BAR -->
+
+<input id="searchInput" placeholder="Search bookmarks..." />
+
+
+<!-- BOOKMARK STATS -->
+
+<div id="stats" class="stats">
+
+</div>
+
+
+<!-- BOOKMARK LIST -->
+
+<div id="bookmarkList">
+
+</div>
+
+
+<script src="popup.js"></script>
+
+</body>
+
+</html>
