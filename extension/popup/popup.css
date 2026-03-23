@@ -1,0 +1,153 @@
+body{
+    width:320px;
+    font-family: Arial, sans-serif;
+    padding:10px;
+    background:#f4f6f8;
+}
+
+
+
+/* HEADER */
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+.logo{
+    font-weight:bold;
+    cursor:pointer;
+    font-size:14px;
+}
+
+.top-buttons button{
+    border:none;
+    background:none;
+    font-size:16px;
+    cursor:pointer;
+}
+
+
+
+/* MENU */
+
+.menu{
+    background:white;
+    border:1px solid #ddd;
+    border-radius:6px;
+    margin-bottom:10px;
+}
+
+.menu div{
+    padding:6px;
+    cursor:pointer;
+}
+
+.menu div:hover{
+    background:#f0f0f0;
+}
+
+.hidden{
+    display:none;
+}
+
+
+
+/* SAVE BUTTON */
+
+.save{
+    width:100%;
+    padding:8px;
+    border:none;
+    background:#4CAF50;
+    color:white;
+    border-radius:6px;
+    cursor:pointer;
+    margin-bottom:10px;
+}
+
+.save:hover{
+    background:#45a049;
+}
+
+
+
+/* GROUP SELECTOR */
+
+.group-section{
+    display:flex;
+    gap:5px;
+    margin-bottom:10px;
+}
+
+.group-section select{
+    flex:1;
+    padding:5px;
+}
+
+.group-section button{
+    width:30px;
+}
+
+
+
+/* SEARCH */
+
+#searchInput{
+    width:100%;
+    padding:6px;
+    border:1px solid #ddd;
+    border-radius:6px;
+    margin-bottom:10px;
+}
+
+
+
+/* STATS */
+
+.stats{
+    background:white;
+    padding:8px;
+    border-radius:6px;
+    margin-bottom:10px;
+    font-size:13px;
+}
+
+
+
+/* BOOKMARK LIST */
+
+.bookmark{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:white;
+    padding:6px;
+    margin-bottom:6px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.bookmark:hover{
+    background:#e8e8e8;
+}
+
+.bookmark img{
+    width:16px;
+    height:16px;
+}
+
+.bookmark span{
+    flex:1;
+    font-size:13px;
+}
+
+.bookmark button{
+    border:none;
+    background:none;
+    cursor:pointer;
+    color:red;
+    font-size:14px;
+}
