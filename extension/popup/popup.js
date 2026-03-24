@@ -15,7 +15,28 @@ const accountBtn = document.getElementById("accountBtn");
 const helpBtn = document.getElementById("helpBtn");
 const settingsBtn = document.getElementById("settingsBtn");
 
+const authSection = document.getElementById("authSection");
+const appSection = document.getElementById("appSection");
 
+const loginBtn = document.getElementById("loginBtn");
+const signupBtn = document.getElementById("signupBtn");
+
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+
+
+
+/* -----------------------------
+LOGIN CHECK 
+----------------------------- */
+
+chrome.storage.local.get("token", (data) => {
+    if (data.token) {
+        authSection.style.display = "none";
+        appSection.style.display = "block";
+        loadBookmarks();
+    }
+});
 
 /* -----------------------------
 LOGO CLICK → OPEN WEBSITE
@@ -47,29 +68,22 @@ OPEN PAGES
 ----------------------------- */
 
 accountBtn.addEventListener("click", () => {
-
     chrome.tabs.create({
         url: chrome.runtime.getURL("pages/account.html")
     });
-
 });
 
 helpBtn.addEventListener("click", () => {
-
     chrome.tabs.create({
-        url: chrome.runtime.getURL("pages/help.html")
+        url: chrome.runtime.getURL("pages/dashboard.html")
     });
-
 });
 
 settingsBtn.addEventListener("click", () => {
-
     chrome.tabs.create({
-        url: chrome.runtime.getURL("pages/settings.html")
+        url: chrome.runtime.getURL("pages/dashboard.html")
     });
-
 });
-
 
 
 /* -----------------------------
@@ -102,6 +116,57 @@ saveBtn.addEventListener("click", () => {
 
     });
 
+});
+
+/* -----------------------------
+LOGIN BTN 
+----------------------------- */
+
+
+loginBtn.addEventListener("click", () => {
+    fetch("http://localhost:3000/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            email: emailInput.value,
+            password: passwordInput.value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.token) {
+            chrome.storage.local.set({ token: data.token }, () => {
+                authSection.style.display = "none";
+                appSection.style.display = "block";
+                loadBookmarks();
+            });
+        } else {
+            alert("Login failed");
+        }
+    });
+});
+
+/* -----------------------------
+SIGNUP BTN 
+----------------------------- */
+
+signupBtn.addEventListener("click", () => {
+    fetch("http://localhost:3000/signup", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            email: emailInput.value,
+            password: passwordInput.value
+        })
+    })
+    .then(res => res.json())
+    .then(() => {
+        alert("Signup successful! Now login.");
+    });
 });
 
 // saveBtn.addEventListener("click", () => {
@@ -145,16 +210,25 @@ function loadBookmarks(){
         bookmarks.forEach(b => {
 
             const item = document.createElement("div");
+            item.className = "bookmark";
 
-            item.className="bookmark";
+            const title = document.createElement("span");
+            title.textContent = b.title;
 
-            item.textContent=b.title;
-
-            item.onclick=()=>{
-
-                chrome.tabs.create({url:b.url});
-            
+            title.onclick = () => {
+                chrome.tabs.create({url: b.url});
             };
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "❌";
+
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation(); // VERY IMPORTANT
+                deleteBookmark(b._id);
+            };
+
+            item.appendChild(title);
+            item.appendChild(deleteBtn);
 
             bookmarkList.appendChild(item);
         
