@@ -42,35 +42,57 @@ submitBtn.onclick = () => {
   .then(res => res.json())
   .then(data => {
 
-    if (mode === "login") {
-        if (data.token) {
-            chrome.storage.local.set({ token: data.token }, () => {
-                message.style.color = "green";
-                message.textContent = "Login successful! Redirecting...";
-
-                setTimeout(() => {
-                    window.location.href = "dashboard.html";
-                }, 1000);
-            });
-        } else {
-            message.style.color = "red";
-            message.textContent = "Login failed";
-        }
-    }
-    else if (mode === "signup") {
+  // 🔐 LOGIN FLOW
+  if (mode === "login") {
+    if (data.token) {
+      chrome.storage.local.set({ token: data.token }, () => {
         message.style.color = "green";
-        message.textContent = "Signup successful! Redirecting to login...";
+        message.textContent = "Login successful! Redirecting...";
 
         setTimeout(() => {
-            // Switch to login tab
-            mode = "login";
-            loginTab.classList.add("active");
-            signupTab.classList.remove("active");
-            submitBtn.textContent = "Login";
-            
-            message.textContent = "";
+          window.location.href = "dashboard.html";
         }, 1000);
+      });
+    } else {
+      message.style.color = "red";
+      message.textContent = "Login failed";
     }
+  }
+
+  // 🚀 SIGNUP → AUTO LOGIN FLOW
+  else if (mode === "signup") {
+
+    // After signup, immediately login
+    fetch("http://localhost:3000/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: emailInput.value,
+        password: passwordInput.value
+      })
+    })
+    .then(res => res.json())
+    .then(loginData => {
+
+      if (loginData.token) {
+        chrome.storage.local.set({ token: loginData.token }, () => {
+          message.style.color = "green";
+          message.textContent = "Signup successful! Redirecting...";
+
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 1000);
+        });
+      } else {
+        message.style.color = "red";
+        message.textContent = "Signup worked, but login failed";
+      }
+
+    });
+  }
+
 })
   .catch(() => {
     message.textContent = "Something went wrong";

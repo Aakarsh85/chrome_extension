@@ -13,13 +13,21 @@ function showSection(id) {
 }
 
 function loadBookmarks() {
-  fetch("http://localhost:3000/bookmarks")
+  chrome.storage.local.get("token", (data) => {
+
+    fetch("http://localhost:3000/bookmarks", {
+      headers: {
+        Authorization: data.token
+      }
+    })
     .then(res => res.json())
-    .then(data => {
-      allBookmarks = data;
-      renderBookmarks(data);
-      populateGroups(data);
+    .then(bookmarks => {
+      allBookmarks = bookmarks;
+      renderBookmarks(bookmarks);
+      populateGroups(bookmarks);
     });
+
+  });
 }
 
 function renderBookmarks(bookmarks) {
@@ -38,7 +46,7 @@ function renderBookmarks(bookmarks) {
       window.open(b.url, "_blank");
     };
 
-    // URL (new)
+    // URL
     const url = document.createElement("small");
     url.textContent = b.url;
     url.style.display = "block";
@@ -57,13 +65,16 @@ function renderBookmarks(bookmarks) {
       const newTitle = prompt("Edit title:", b.title);
       if (!newTitle) return;
 
-      fetch(`http://localhost:3000/bookmark/${b._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ title: newTitle })
-      }).then(loadBookmarks);
+      chrome.storage.local.get("token", (data) => {
+        fetch(`http://localhost:3000/bookmark/${b._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: data.token
+          },
+          body: JSON.stringify({ title: newTitle })
+        }).then(loadBookmarks);
+      });
     };
 
     // 🗑 DELETE BUTTON
@@ -71,11 +82,15 @@ function renderBookmarks(bookmarks) {
     delBtn.textContent = "Delete";
     delBtn.className = "delete-btn";
 
-
     delBtn.onclick = () => {
-      fetch(`http://localhost:3000/bookmark/${b._id}`, {
-        method: "DELETE"
-      }).then(loadBookmarks);
+      chrome.storage.local.get("token", (data) => {
+        fetch(`http://localhost:3000/bookmark/${b._id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: data.token
+          }
+        }).then(loadBookmarks);
+      });
     };
 
     // Append buttons

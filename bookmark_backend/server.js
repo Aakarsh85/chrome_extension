@@ -12,6 +12,25 @@ const jwt = require("jsonwebtoken");
 
 const SECRET = "mysecretkey";
 
+
+/* Authentication */
+
+function auth(req, res, next) {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, SECRET);
+    req.userId = decoded.id;   // 🔥 used in routes
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+}
+
 app.use(cors());
 app.use(express.json());
 
@@ -65,33 +84,43 @@ app.post("/login", async (req, res) => {
 
 /* SAVE BOOKMARK */
 
-app.post("/bookmark", async (req,res)=>{
+app.post("/bookmark", auth, async (req, res) => {
 
-    const bookmark = new Bookmark(req.body);
+    const { title, url, group } = req.body;
+
+    const bookmark = new Bookmark({
+        title,
+        url,
+        group,
+        user: req.userId   // 🔥 THIS IS THE KEY CHANGE
+    });
 
     await bookmark.save();
 
-    res.json({message:"Bookmark saved"});
-
+    res.json({ message: "Bookmark saved" });
 });
 
 /*POST BOOKMARK*/
 
-app.put("/bookmark/:id", async (req, res) => {
+app.put("/bookmark/:id", auth, async (req, res) => {
   try {
     const { title } = req.body;
 
-    const updatedBookmark = await Bookmark.findByIdAndUpdate(
-      req.params.id,
-      { title: title },
+    const updatedBookmark = await Bookmark.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        user: req.userId   // 🔥 ensures only owner can edit
+      },
+      { title },
       { new: true }
     );
 
     if (!updatedBookmark) {
-      return res.status(404).json({ message: "Bookmark not found" });
+      return res.status(404).json({ message: "Bookmark not found or not authorized" });
     }
 
     res.json(updatedBookmark);
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -99,24 +128,27 @@ app.put("/bookmark/:id", async (req, res) => {
 
 /* GET ALL BOOKMARKS */
 
-app.get("/bookmarks", async (req,res)=>{
+app.get("/bookmarks", auth, async (req, res) => {
+  const bookmarks = await Bookmark.find({
+    user: req.userId
+  });
 
-    const bookmarks = await Bookmark.find();
-
-    res.json(bookmarks);
-
+  res.json(bookmarks);
 });
-
 
 
 /* DELETE BOOKMARK */
 
-app.delete("/bookmark/:id", async (req,res)=>{
+app.delete("/bookmark/:id", auth, async (req, res) => {
 
-    await Bookmark.findByIdAndDelete(req.params.id);
+  await Bookmark.findOneAndDelete({
 
-    res.json({message:"Bookmark deleted"});
+    _id: req.params.id,
+    user: req.userId
 
+  });
+
+  res.json({message:"Bookmark deleted"});
 });
 
 

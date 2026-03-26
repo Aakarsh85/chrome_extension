@@ -4,8 +4,12 @@ const BookmarkSchema = new mongoose.Schema({
 
     title: String,
     url: String,
-    group: String,   // now dynamic
-    userId: String,
+    group: String,
+
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    },
 
     createdAt: {
         type: Date,
@@ -13,5 +17,6 @@ const BookmarkSchema = new mongoose.Schema({
     }
 
 });
+
 module.exports = mongoose.model("Bookmark", BookmarkSchema);
 //C:\Users\acer\Desktop\extension backend

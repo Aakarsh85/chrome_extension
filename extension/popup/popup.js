@@ -15,27 +15,30 @@ const accountBtn = document.getElementById("accountBtn");
 const helpBtn = document.getElementById("helpBtn");
 const settingsBtn = document.getElementById("settingsBtn");
 
-const authSection = document.getElementById("authSection");
-const appSection = document.getElementById("appSection");
+// const authSection = document.getElementById("authSection");
+// const appSection = document.getElementById("appSection");
 
-const loginBtn = document.getElementById("loginBtn");
-const signupBtn = document.getElementById("signupBtn");
+// const loginBtn = document.getElementById("loginBtn");
+// const signupBtn = document.getElementById("signupBtn");
 
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
+// const emailInput = document.getElementById("email");
+// const passwordInput = document.getElementById("password");
 
 
-
+let allBookmarks = [];
 /* -----------------------------
 LOGIN CHECK 
 ----------------------------- */
 
 chrome.storage.local.get("token", (data) => {
-    if (data.token) {
-        authSection.style.display = "none";
-        appSection.style.display = "block";
-        loadBookmarks();
+
+    if (!data.token) {
+        bookmarkList.innerHTML = "<p>Please login from Account</p>";
+        return;
     }
+
+    loadBookmarks();   // 🔥 ALWAYS load bookmarks
+
 });
 
 /* -----------------------------
@@ -92,7 +95,7 @@ SAVE CURRENT PAGE
 
 saveBtn.addEventListener("click", () => {
 
-    chrome.tabs.query({active:true,currentWindow:true}, (tabs)=>{
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 
         const tab = tabs[0];
 
@@ -101,17 +104,27 @@ saveBtn.addEventListener("click", () => {
             url: tab.url,
             group: groupInput.value || "General"
         };
-        
-        fetch("http://localhost:3000/bookmark",{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body: JSON.stringify(bookmark)
-        })
-        .then(res => res.json())
-        .then(data => {
-            loadBookmarks();
+
+        chrome.storage.local.get("token", (data) => {
+
+            if (!data.token) {
+                alert("Please login first");
+                return;
+            }
+
+            fetch("http://localhost:3000/bookmark", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: data.token
+                },
+                body: JSON.stringify(bookmark)
+            })
+            .then(res => res.json())
+            .then(() => {
+                loadBookmarks();
+            });
+
         });
 
     });
@@ -123,51 +136,57 @@ LOGIN BTN
 ----------------------------- */
 
 
-loginBtn.addEventListener("click", () => {
-    fetch("http://localhost:3000/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            email: emailInput.value,
-            password: passwordInput.value
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.token) {
-            chrome.storage.local.set({ token: data.token }, () => {
-                authSection.style.display = "none";
-                appSection.style.display = "block";
-                loadBookmarks();
-            });
-        } else {
-            alert("Login failed");
-        }
-    });
-});
+// if (loginBtn) {
+//     loginBtn.addEventListener("click", () => {
+//         fetch("http://localhost:3000/login", {
+//             method: "POST",
+//             headers: {
+//                 "Content-Type": "application/json"
+//             },
+//             body: JSON.stringify({
+//                 email: emailInput.value,
+//                 password: passwordInput.value
+//             })
+//         })
+//         .then(res => res.json())
+//         .then(data => {
+//             if (data.token) {
+//                 chrome.storage.local.set({ token: data.token }, () => {
+
+//                     if (authSection) authSection.style.display = "none";
+//                     if (appSection) appSection.style.display = "block";
+
+//                     loadBookmarks();
+
+//                 });
+//             } else {
+//                 alert("Login failed");
+//             }
+//         });
+//     });
+// }
+
 
 /* -----------------------------
 SIGNUP BTN 
 ----------------------------- */
 
-signupBtn.addEventListener("click", () => {
-    fetch("http://localhost:3000/signup", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            email: emailInput.value,
-            password: passwordInput.value
-        })
-    })
-    .then(res => res.json())
-    .then(() => {
-        alert("Signup successful! Now login.");
-    });
-});
+// signupBtn.addEventListener("click", () => {
+//     fetch("http://localhost:3000/signup", {
+//         method: "POST",
+//         headers: {
+//             "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify({
+//             email: emailInput.value,
+//             password: passwordInput.value
+//         })
+//     })
+//     .then(res => res.json())
+//     .then(() => {
+//         alert("Signup successful! Now login.");
+//     });
+// });
 
 // saveBtn.addEventListener("click", () => {
 
@@ -199,44 +218,81 @@ signupBtn.addEventListener("click", () => {
 /* -----------------------------
 LOAD BOOKMARKS
 ----------------------------- */
+
 function loadBookmarks(){
-    
-    fetch("http://localhost:3000/bookmarks")
-    .then(res => res.json())
-    .then(bookmarks => {
 
-        bookmarkList.innerHTML="";
+    chrome.storage.local.get("token", (data) => {
 
-        bookmarks.forEach(b => {
+        // 🔐 If not logged in
+        if (!data.token) {
+            allBookmarks = [];   // clear old data
+            bookmarkList.innerHTML = "<p>Please login from Account</p>";
+            return;
+        }
 
-            const item = document.createElement("div");
-            item.className = "bookmark";
+        // 📡 Fetch bookmarks from backend
+        fetch("http://localhost:3000/bookmarks", {
+            headers: {
+                Authorization: data.token
+            }
+        })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("Failed to fetch bookmarks");
+            }
+            return res.json();
+        })
+        .then(bookmarks => {
 
-            const title = document.createElement("span");
-            title.textContent = b.title;
+            // 🧠 Store globally for search
+            allBookmarks = bookmarks;
 
-            title.onclick = () => {
-                chrome.tabs.create({url: b.url});
-            };
+            // 🖼 Render UI
+            renderBookmarks(bookmarks);
 
-            const deleteBtn = document.createElement("button");
-            deleteBtn.textContent = "❌";
-
-            deleteBtn.onclick = (e) => {
-                e.stopPropagation(); // VERY IMPORTANT
-                deleteBookmark(b._id);
-            };
-
-            item.appendChild(title);
-            item.appendChild(deleteBtn);
-
-            bookmarkList.appendChild(item);
-        
+        })
+        .catch(err => {
+            console.error("Error loading bookmarks:", err);
+            bookmarkList.innerHTML = "<p>Error loading bookmarks</p>";
         });
-    
+
     });
 
 }
+
+function renderBookmarks(bookmarks){
+
+    bookmarkList.innerHTML = "";
+
+    bookmarks.forEach(b => {
+
+        const item = document.createElement("div");
+        item.className = "bookmark";
+
+        const title = document.createElement("span");
+        title.textContent = b.title;
+
+        title.onclick = () => {
+            chrome.tabs.create({ url: b.url });
+        };
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Delete";
+
+        deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteBookmark(b._id);
+        };
+
+        item.appendChild(title);
+        item.appendChild(deleteBtn);
+
+        bookmarkList.appendChild(item);
+
+    });
+
+}
+
 // function loadBookmarks(){
 
 //     chrome.storage.local.get("bookmarks", (data)=>{
@@ -290,13 +346,18 @@ function loadBookmarks(){
 DELETE BOOKMARK
 ----------------------------- */
 function deleteBookmark(id){
-    
-    fetch("http://localhost:3000/bookmark/"+id,{
 
-        method:"DELETE"
-    
-    })
-    .then(()=>loadBookmarks());
+    chrome.storage.local.get("token", (data) => {
+
+        fetch("http://localhost:3000/bookmark/" + id, {
+            method: "DELETE",
+            headers: {
+                Authorization: data.token
+            }
+        })
+        .then(() => loadBookmarks());
+
+    });
 
 }
 // function deleteBookmark(index){
@@ -323,45 +384,26 @@ function deleteBookmark(id){
 SEARCH BOOKMARKS
 ----------------------------- */
 
-searchInput.addEventListener("input", ()=>{
+if (searchInput) {
+    searchInput.addEventListener("input", () => {
 
-    const query = searchInput.value.toLowerCase();
+        const query = searchInput.value.toLowerCase();
 
-    chrome.storage.local.get("bookmarks", (data)=>{
+        const filtered = allBookmarks.filter(b =>
+            b.title.toLowerCase().includes(query)
+        );
 
-        const bookmarks = data.bookmarks || [];
+        renderBookmarks(filtered);   // ✅ use same renderer
 
-        bookmarkList.innerHTML = "";
-
-        bookmarks
-        .filter(b => b.title.toLowerCase().includes(query))
-        .forEach(b=>{
-
-            const div = document.createElement("div");
-
-            div.className="bookmark";
-            div.textContent=b.title;
-
-            div.onclick=()=>{
-
-                chrome.tabs.create({url:b.url});
-
-            };
-
-            bookmarkList.appendChild(div);
-
-        });
+        console.log("ALL:", allBookmarks);
 
     });
-
-});
-
-
+}
 
 /* -----------------------------
 INITIAL LOAD
 ----------------------------- */
 
-loadBookmarks();
+// loadBookmarks();
 
 });
