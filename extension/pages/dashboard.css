@@ -87,6 +87,13 @@ input, select {
   cursor: pointer;
 }
 
+/*Tags */
+.tags {
+  font-size: 12px;
+  color: #555;
+  margin-top: 4px;
+}
+
 .actions button:hover {
   opacity: 0.8;
 }
@@ -99,4 +106,9 @@ input, select {
 .delete-btn {
   background: #ef4444;
   color: white;
+}
+/* For tags(search) */
+#tagSearch {
+  margin-top: 5px;
+  width: 25%;
 }

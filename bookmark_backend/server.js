@@ -96,12 +96,13 @@ app.post("/login", async (req, res) => {
 
 app.post("/bookmark", auth, async (req, res) => {
 
-    const { title, url, group } = req.body;
+    const { title, url, group, tags } = req.body;
 
     const bookmark = new Bookmark({
         title,
         url,
         group,
+        tags: tags || [],
         user: req.userId   // 🔥 THIS IS THE KEY CHANGE
     });
 

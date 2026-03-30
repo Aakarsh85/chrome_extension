@@ -6,6 +6,7 @@ const BookmarkSchema = new mongoose.Schema({
     title: String,
     url: String,
     group: String,
+    tags: [String],
 
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -20,4 +21,3 @@ const BookmarkSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("Bookmark", BookmarkSchema);
-//C:\Users\acer\Desktop\extension backend

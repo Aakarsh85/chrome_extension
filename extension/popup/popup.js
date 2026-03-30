@@ -102,7 +102,10 @@ saveBtn.addEventListener("click", () => {
         const bookmark = {
             title: tab.title,
             url: tab.url,
-            group: groupInput.value || "General"
+            group: groupInput.value || "General",
+            tags: tagInput.value
+                ? tagInput.value.split(",").map(t => t.trim())
+                : []
         };
 
         chrome.storage.local.get("token", (data) => {
@@ -122,6 +125,8 @@ saveBtn.addEventListener("click", () => {
             })
             .then(res => res.json())
             .then(() => {
+                tagInput.value = "";   // 🔥 clear tags
+                groupInput.value = "";
                 loadBookmarks();
             });
 
