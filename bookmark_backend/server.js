@@ -115,15 +115,16 @@ app.post("/bookmark", auth, async (req, res) => {
 
 app.put("/bookmark/:id", auth, async (req, res) => {
   try {
-    const { title } = req.body;
+    const { title, tags } = req.body;
 
     const updatedBookmark = await Bookmark.findOneAndUpdate(
       {
         _id: req.params.id,
         user: req.userId   // 🔥 ensures only owner can edit
       },
-      { title },
-      { new: true }
+      { title, 
+        tags },
+      { returnDocument: "after" }
     );
 
     if (!updatedBookmark) {

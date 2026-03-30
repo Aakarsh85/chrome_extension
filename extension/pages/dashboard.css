@@ -107,6 +107,28 @@ input, select {
   background: #ef4444;
   color: white;
 }
+
+.tags {
+  margin-top: 6px;
+}
+
+.tag {
+  display: inline-block;
+  background: #e0f0ff;
+  color: #007bff;
+  padding: 3px 8px;
+  margin: 2px;
+  border-radius: 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.tag:hover {
+  background: #007bff;
+  color: white;
+}
+
 /* For tags(search) */
 #tagSearch {
   margin-top: 5px;

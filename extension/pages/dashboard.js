@@ -227,13 +227,35 @@ function renderBookmarks(bookmarks) {
     url.style.display = "block";
     url.style.color = "gray";
 
-    //For displaying tags
-    const tags = document.createElement("div");
-    tags.className = "tags";
+    //For displaying tags(new)
+    const tagsContainer = document.createElement("div");
+    tagsContainer.className = "tags";
+
+    if (b.tags && b.tags.length > 0) {
+      b.tags.forEach(tag => {
+
+        const tagEl = document.createElement("span");
+        tagEl.className = "tag";
+        tagEl.textContent = tag;
+
+        // 🔥 Click to filter
+        tagEl.onclick = () => {
+          if (tagSearch) {
+            tagSearch.value = tag;
+            filter();
+          }
+        };
+
+        tagsContainer.appendChild(tagEl);
+      });
+    }
+    //For displaying tags(old)
+    // const tags = document.createElement("div");
+    // tags.className = "tags";
     
-    tags.textContent = (b.tags && b.tags.length > 0)
-      ? "Tags: " + b.tags.join(", ")
-      : "";
+    // tags.textContent = (b.tags && b.tags.length > 0)
+    //   ? "Tags: " + b.tags.join(", ")
+    //   : "";
   
     // Actions
     const actions = document.createElement("div");
@@ -245,15 +267,26 @@ function renderBookmarks(bookmarks) {
     editBtn.className = "edit-btn";
 
     editBtn.onclick = () => {
+
       const newTitle = prompt("Edit title:", b.title);
       if (!newTitle || !newTitle.trim()) return;
+
+      const newTagsInput = prompt(
+        "Edit tags (comma separated):",
+        b.tags ? b.tags.join(", ") : ""
+      );
+
+      const newTags = newTagsInput ? newTagsInput.split(",").map(t => t.trim()) : [];
 
       apiFetch(`${API_URL}/bookmark/${b._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ title: newTitle })
+        body: JSON.stringify({
+          title: newTitle,
+          tags: newTags   // 🔥 NEW
+        })
       })
       .then(() => loadBookmarks())
       .catch(err => {
@@ -364,7 +397,7 @@ function renderBookmarks(bookmarks) {
     // Append everything
     card.appendChild(title);
     card.appendChild(url);
-    card.appendChild(tags);
+    card.appendChild(tagsContainer);
     card.appendChild(actions);
 
     container.appendChild(card);
