@@ -1,3 +1,4 @@
+//server.js(backend)
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -27,6 +28,11 @@ function auth(req, res, next) {
     req.userId = decoded.id;   // 🔥 used in routes
     next();
   } catch (err) {
+
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token expired" });//logout
+    }
+
     return res.status(401).json({ message: "Invalid token" });
   }
 }
@@ -73,7 +79,11 @@ app.post("/login", async (req, res) => {
 
     if (!isMatch) return res.status(400).json({ message: "Wrong password" });
 
-    const token = jwt.sign({ id: user._id }, SECRET);
+    const token = jwt.sign(
+      { id: user._id },
+      SECRET,
+      { expiresIn: "1h" }   // ⏱ expires in 1 hour
+    );
 
     res.json({ token });
 

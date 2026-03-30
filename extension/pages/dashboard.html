@@ -12,10 +12,10 @@
   <div class="sidebar">
     <h2> Bookmarks</h2>
 
-    <button onclick="showSection('home')"> Dashboard</button>
-    <button onclick="showSection('account')"> Account</button>
-    <button onclick="showSection('settings')"> Settings</button>
-    <button onclick="showSection('help')"> Help</button>
+    <button onclick="showSection('home')">Dashboard</button>
+    <button onclick="showSection('account')">Account</button>
+    <button onclick="showSection('settings')">Settings</button>
+    <button onclick="showSection('help')">Help</button>
   </div>
 
   <!-- Main Content -->
@@ -25,28 +25,40 @@
     <div id="home" class="section">
       <h2>All Bookmarks</h2>
 
-      <input type="text" id="search" placeholder="Search...">
-      <select id="groupFilter"></select>
+      <div class="controls">
+        <input type="text" id="search" placeholder=" Search bookmarks...">
+        <select id="groupFilter">
+          <option value="all">All Groups</option>
+        </select>
+      </div>
 
       <div id="bookmarkContainer"></div>
     </div>
 
-    <!-- Account -->
+    <!-- Account Section -->
     <div id="account" class="section hidden">
       <h2>Account</h2>
-      <p>User info coming soon...</p>
+
+      <p id="userStatus">You are logged in</p>
+
+      <button id="logoutBtn" class="logout-btn">Logout</button>
     </div>
 
     <!-- Settings -->
     <div id="settings" class="section hidden">
       <h2>Settings</h2>
-      <p>Dark mode, preferences...</p>
+      <p>Preferences coming soon...</p>
     </div>
 
     <!-- Help -->
     <div id="help" class="section hidden">
       <h2>Help</h2>
-      <p>Instructions and guide...</p>
+      <p>Use this extension to save and manage your bookmarks easily.</p>
+      <ul>
+        <li>Click "Save" in popup to store bookmarks</li>
+        <li>Use search and filters to find bookmarks</li>
+        <li>Edit or delete anytime</li>
+      </ul>
     </div>
 
   </div>
